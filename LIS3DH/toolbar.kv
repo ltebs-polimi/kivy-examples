@@ -1,0 +1,29 @@
+#:kivy 1.11
+
+<Toolbar>:
+    orientation:'vertical'
+    spacing: 10
+    wave_select: _wave_select
+    range_select: _range_select
+    canvas.before:
+        Color:
+            rgba: (0.1, 0.1, 0.1, 1.0)
+        Rectangle:
+            size: self.size
+            pos: self.pos
+    ToolbarButton:
+        id: _range_select
+        text: 'Sample Rate'
+        on_release: root.sample_rate_dialog()
+    ToolbarButton:
+        id: _wave_select
+        text: 'Full Scale Range'
+        on_release: root.full_scale_range_dialog()
+    ToolbarButton:
+        id: _wave_select
+        text: 'Data Export'
+        on_release: root.output_file_dialog()
+    Widget:
+
+<ToolbarButton@Button>:
+    size_hint_y: 0.1
