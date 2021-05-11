@@ -1,0 +1,31 @@
+#:kivy 1.11
+
+<Container>:
+    orientation: 'vertical'
+    padding: 5
+    spacing: 5
+    BoxLayout:
+        orientation: 'horizontal'
+        size_hint_y: 0.2
+        Button:
+            text: 'Connect'
+        Label:
+            text: 'Disconnected'
+    BoxLayout:
+        orientation: 'vertical'
+        size_hint_y: 0.8
+        GridLayout:
+            cols: 2
+            size_hint_y: 0.3
+            Label:
+                text: 'Enable'
+            CheckBox:
+                active: True
+            Button: 
+                text: 'Value'
+            Spinner:
+                text: '1'
+                values: ['1','2','3']
+        BoxLayout:
+            orientation: 'horizontal'
+            size_hint_y: 0.7

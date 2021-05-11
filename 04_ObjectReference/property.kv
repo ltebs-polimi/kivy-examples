@@ -1,0 +1,13 @@
+#:kivy 1.11
+
+<Container>:
+    orientation: 'horizontal'
+    connection_label: _connection_label_id
+    connection_button: _connection_button_id
+    Button:
+        text: 'Connect'
+        id: _connection_button_id
+        on_press: root.button_pressed_callback()
+    Label:
+        text: 'Disconnected'
+        id: _connection_label_id
