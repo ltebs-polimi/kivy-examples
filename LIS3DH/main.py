@@ -3,7 +3,7 @@
 from kivy.app import App
 from kivy.uix.boxlayout import BoxLayout
 from kivy.lang import Builder
-from kivy.properties import ObjectProperty  #pylint: disable=no-name-in-module
+from kivy.properties import ObjectProperty  # pylint: disable=no-name-in-module
 from communication import KivySerial
 
 # Load all required kv files
@@ -11,6 +11,7 @@ Builder.load_file('toolbar.kv')
 Builder.load_file('bottom_bar.kv')
 Builder.load_file('dialogs.kv')
 Builder.load_file('graph_tabs.kv')
+
 
 class ContainerLayout(BoxLayout):
     """
@@ -24,7 +25,7 @@ class ContainerLayout(BoxLayout):
 
     """
     @brief Bottom bar widget.
-    """ 
+    """
     bottom_bar = ObjectProperty(None)
 
     """
@@ -33,7 +34,7 @@ class ContainerLayout(BoxLayout):
     graph_w = ObjectProperty(None)
 
     streaming_button = ObjectProperty(None)
-    
+
     def __init__(self, **kwargs):
         """
         @brief Initialize class.
@@ -69,6 +70,7 @@ class ContainerLayout(BoxLayout):
         @brief Callback for graph widget.
         """
         self.serial.add_callback(self.graph_w.update_plot)
+        self.serial.bind(sample_rate=self.graph_w.update_sample_rate)
 
     def connection_event(self, instance, value):
         """
@@ -90,13 +92,17 @@ class ContainerLayout(BoxLayout):
         if (not self.serial.is_streaming):
             self.serial.start_streaming()
             self.streaming_button.text = 'Stop'
+            self.toolbar.disabled = True
         else:
             self.serial.stop_streaming()
             self.streaming_button.text = 'Start'
+            self.toolbar.disabled = False
+
 
 class LIS3DHApp(App):
     def build(self):
         return ContainerLayout()
 
+
 if __name__ == '__main__':
-    LIS3DHApp().run()    
+    LIS3DHApp().run()
