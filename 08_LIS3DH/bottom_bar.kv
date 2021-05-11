@@ -2,7 +2,8 @@
 
 <BottomBar>:
     orientation:'horizontal'
-    spacing: 10
+    spacing: 5
+    padding: 5
     message_label: _message_label
     connection_label: _connection_label
     canvas.before:
@@ -13,7 +14,7 @@
             pos: self.pos
     Label:
         id: _message_label
-        text: "PSoC-WaveDAC GUI"
+        text: "Welcome to the PSoC-LIS3DH GUI"
     ConnectionLabel:
         id: _connection_label
         size_hint_x: 0.1
@@ -29,3 +30,6 @@
 
 <ConnectionLabel@ColoredLabel>:
     text: 'Device'
+
+<SensorLabel@ColoredLabel>:
+    text: 'Sensor'

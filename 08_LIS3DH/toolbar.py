@@ -19,41 +19,38 @@ class Toolbar(BoxLayout):
     def __init__(self, **kwargs):
         super(Toolbar, self).__init__(**kwargs)
 
-    def wave_select_dialog(self):
+    def sample_rate_dialog(self):
         """
         @brief Open popup for wave selection.
         """
-        self.message_string = "Wave Select Dialog"
-        popup = WaveSelectDialog()
-        popup.open()
-
-    def range_select_dialog(self):
-        """
-        @brief Open popup for range selection.
-        """
-        self.message_string = "Range Select Dialog"
-        popup = RangeSelectDialog()
+        self.message_string = "Sample Rate Dialog"
+        popup = SampleRateDialog()
         popup.open()
 
 
-class WaveSelectDialog(Popup):
+
+class SampleRateDialog(Popup):
     """
     @brief Popup to allow wave selection 
     """
-    wave_select_spinner = ObjectProperty(None)
+    sample_rate_spinner = ObjectProperty(None)
 
     def __init__(self, **kwargs):
-        super(WaveSelectDialog, self).__init__(**kwargs)
         self.board = KivySerial()
+        super(SampleRateDialog, self).__init__(**kwargs)
 
+    def on_sample_rate_spinner(self, instance, value):
+        self.sample_rate_spinner.text = f'{self.board.sample_rate} Hz'
+
+    ##
+    #   @brief          Callback called when update button is pressed.
+    #
+    #   If the board is connected, update the sample rate.
+    #
     def update_pressed(self):
-        """
-        @brief Callback called when update button is pressed.
-
-        If the board is connected, update the wave selection.
-        """
+        
         if (self.board.is_connected()):
-            self.board.select_wave(self.wave_select_spinner.text)
+           self.board.update_sample_rate_on_board(self.sample_rate_spinner.text)
         self.dismiss()
 
 class RangeSelectDialog(Popup):

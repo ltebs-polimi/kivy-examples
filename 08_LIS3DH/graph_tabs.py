@@ -1,5 +1,5 @@
 from datetime import datetime
-
+from decimal import Decimal
 from kivy.lang import Builder
 from kivy.uix.textinput import TextInput
 from kivy.uix.tabbedpanel import TabbedPanel, TabbedPanelItem
@@ -7,72 +7,64 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.label import Label
 from kivy.properties import BooleanProperty, ObjectProperty, NumericProperty  # pylint:disable=no-name-in-module
 import re
-from kivy.garden.graph import MeshLinePlot, LinePlot  # pylint:disable=no-name-in-module, import-error
-from kivy.graphics import Color, Rectangle
-
-from decimal import Decimal
+from kivy.garden.graph import LinePlot  # pylint:disable=no-name-in-module, import-error
 from math import pow, isclose
 
-
+##
+#   @brief              Main tabbed panel to show tabbed items in the GUI.
+#
 class GraphTabs(TabbedPanel):
-    """
-    @brief Main tabbed panel to show tabbed items.
-    """
 
-    """
-    @brief Wav dac plot tabbed panel.
-    """
+    ##
+    #   @brief          Reference to acceleration tabbed item.
     acc_tab = ObjectProperty(None)
 
-    def __init__(self, **kwargs):
-        super(GraphTabs, self).__init__(**kwargs)
-
+    ##
+    #   @brief          Update plots with new packet of data
+    #   @param[in]      packet: new packet of data.
     def update_plot(self, packet):
-        """
-        @brief Function called to update the plots in the tabbed panel.
-        """
         self.acc_tab.update_plot(packet)
 
+    ##
+    #   @brief          Update sample rate value in plots.
+    #   @param[in]      instance: object calling the update function
+    #   @param[in]      value: new sample rate value
     def update_sample_rate(self, instance, value):
         self.acc_tab.update_sample_rate(value)
 
-
+##
+#   @brief          Tabbed panel item to show acceleration data.
+#
 class LIS3DHTabbedPanelItem(TabbedPanelItem):
-    """
-    @brief Item for a tabbed panel in which a graph is shown.
-    """
 
-    """
-    @brief Graph widget.
-    """
+
+    ##
+    #   @brief          Reference to graph widget.
     graph = ObjectProperty(None)
 
-    """
-    @brief Plot settings widget.
-    """
+    ##
+    #   @brief          Reference to plot settings widget.
     plot_settings = ObjectProperty(None)
 
-    """
-    @brief Refresh rate: ~ 50 fps (100 Hz/2)
-    """
-    n_points_per_update = NumericProperty(1)
-
+    ##
+    #   @brief          Autoscale setting.
     autoscale = BooleanProperty(False)
 
     def __init__(self, **kwargs):
+        self.max_seconds = 20                # Maximum number of seconds to show
+        self.n_seconds = self.max_seconds    # Initial number of samples to be shown
+        self.x_axis_n_points_collected = []  # Number of new collected points for x axis
+        self.y_axis_n_points_collected = []  # Number of new collected points for y axis
+        self.z_axis_n_points_collected = []  # Number of new collected points for z axis
+        self.sample_rate = 1                 # Sample rate for data streaming
+        self.n_points_per_update = 1         # Number of new points before triggering a new update
         super(LIS3DHTabbedPanelItem, self).__init__(**kwargs)
-        self.max_seconds = 20
-        # Initial number of samples to be shown
-        self.n_seconds = self.max_seconds
-        self.x_axis_n_points_collected = []  # Number of new collected points
-        self.y_axis_n_points_collected = []  # Number of new collected points
-        self.z_axis_n_points_collected = []  # Number of new collected points
-        self.sample_rate = 1       # Sample rate for data streaming
 
+    ##
+    #   @brief          Callback called when the graph widget is shown on the screen.
+    #
+    #   Here, we setup the plots for x, y, and z data.
     def on_graph(self, instance, value):
-        """
-        @brief Callback called when graph widget is ready.
-        """
         self.graph.xmin = -self.n_seconds
         self.graph.xmax = 0
         self.graph.xlabel = 'Time (s)'
@@ -114,10 +106,16 @@ class LIS3DHTabbedPanelItem(TabbedPanelItem):
         self.graph.add_plot(self.y_plot)
         self.graph.add_plot(self.z_plot)
 
+    ##
+    #   @brief          Callback called when the \ref autoscale property changes.
     def on_autoscale(self, instance, value):
         if (value):
             self.autoscale_plots()
 
+    ##
+    #   @brief          Autoscale all plots.
+    #
+    #   Autoscale all plots in the \ref graph_widget and update y ticsk.
     def autoscale_plots(self):
         global_y_min = []
         global_y_max = []

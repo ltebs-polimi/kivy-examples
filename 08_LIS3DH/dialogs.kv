@@ -1,11 +1,11 @@
 #:kivy 1.11
 
-<WaveSelectDialog>:
+<FullScalerRangeDialog>:
     auto_dismiss: False
     size_hint: 0.4, 0.4
     pos_hint: {'top': 0.5, 'right':0.5}
-    title: 'Wave Selection'
-    wave_select_spinner: _spinner
+    title: 'FSR Selection'
+    fsr_select_spinner: _spinner
     GridLayout:
         cols: 2
         spacing: 10
@@ -14,8 +14,8 @@
             text: 'Wave'
         Spinner:
             id: _spinner
-            text: 'Sine'
-            values: ['Sine','Triangle']
+            text: '+/-2g'
+            values: ['+/-2g','+/-4g','+/-8g','+/-16g']
         Widget:
         Widget:
         Button:
@@ -25,24 +25,21 @@
             text: 'Update'
             on_release: root.update_pressed()
 
-<RangeSelectDialog>:
+<SampleRateDialog>:
     auto_dismiss: False
     size_hint: 0.4, 0.4
     pos_hint: {'top': 0.5, 'right':0.5}
-    title: 'Range Selection'
-    range_spinner: _spinner
+    title: 'Sample Rate Selection'
+    sample_rate_spinner: _sample_rate_spinner
     GridLayout:
         cols: 2
         spacing: 10
         padding: 20
         Label: 
-            text: 'Range'
+            text: 'Sample Rate'
         Spinner:
-            values: ['Small','Large'] 
-            text: 'Large'
-            id: _spinner
-        Widget:
-        Widget:
+            values: ['1 Hz','10 Hz', '25 Hz', '50 Hz', '100 Hz', '200 Hz'] 
+            id: _sample_rate_spinner
         Button:
             text: 'Cancel'
             on_release: root.dismiss()

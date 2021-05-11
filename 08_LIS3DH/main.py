@@ -6,6 +6,12 @@ from kivy.lang import Builder
 from kivy.properties import ObjectProperty  # pylint: disable=no-name-in-module
 from communication import KivySerial
 
+from kivy.config import Config
+
+Config.set('kivy', 'desktop', 1)
+Config.set('input', 'mouse', 'mouse,disable_multitouch')
+Config.set('kivy', 'exit_on_escape', '0')
+
 # Load all required kv files
 Builder.load_file('toolbar.kv')
 Builder.load_file('bottom_bar.kv')

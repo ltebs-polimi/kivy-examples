@@ -13,10 +13,6 @@ import time
 
 from datetime import datetime
 
-"""
-PACKET BYTES         
-"""
-
 ##
 #   @brief          Data packet header.
 #
@@ -46,22 +42,19 @@ START_STREAMING_CMD = 'b'
 STOP_STREAMING_CMD = 's'
 
 ##
-#   @brief          Command to start streaming from the board.
+#   @brief          Disconnected port state.
 #
 CONNECTION_STATE_DISCONNECTED = 0
 
+##
+#   @brief          Port found state.
+#
 CONNECTION_STATE_FOUND = 1
 
+##
+#   @brief          Connected state.
+#
 CONNECTION_STATE_CONNECTED = 2
-
-FSR_PM_2G = 0
-FSR_PM_4G = 1
-FSR_PM_8G = 2
-FSR_PM_16G = 3
-
-MODE_NORMAL = 0
-MODE_HIGH_RESOLUTION = 1
-MODE_LOW_POWER = 2
 
 ##
 #   @brief          Class used for Singleton pattern.
@@ -372,8 +365,9 @@ class KivySerial(EventDispatcher, metaclass=Singleton):
             '1 Hz': '0',
             '10 Hz': '1',
             '25 Hz': '2',
-            '100 Hz': '3',
-            '200 Hz': '4'
+            '50 Hz': '3',
+            '100 Hz': '4',
+            '200 Hz': '5'
         }
         if (self.port.is_open):
             try:
