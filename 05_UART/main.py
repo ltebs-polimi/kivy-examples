@@ -19,15 +19,24 @@ class Container(BoxLayout):
     com_ports_spinner = ObjectProperty(None)
 
     def __init__(self, **kwargs):
-        super(Container, self).__init__(*kwargs)
         self.connected = False
+        super(Container, self).__init__(*kwargs)
+        
 
     def on_com_ports_spinner(self, instance, value):
         ports = [port.device for port in comports()]
         self.com_ports_spinner.values = ports
-        self.com_ports_spinner.text = ports[0]
-
+        if len(ports) > 0:
+            self.com_ports_spinner.text = ports[0]
+        else:
+            self.com_ports_spinner.text = 'No COM port found'
+            self.com_ports_spinner.disabled = True
+        
     def button_pressed_callback(self):
+        if (len(self.com_ports_spinner.values) == 0):
+            print('No COM port selected')
+            return
+        #if len(self.com_ports_spinner.values)
         if (not self.connected):
             try:
                 self.ser = serial.Serial(
