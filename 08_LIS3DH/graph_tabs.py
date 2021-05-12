@@ -70,7 +70,7 @@ class LIS3DHTabbedPanelItem(TabbedPanelItem):
         self.graph.xlabel = 'Time (s)'
         self.graph.ylabel = 'Acceleration (g)'
         self.graph.x_ticks_minor = 1
-        self.graph.x_ticks_major = 5
+        self.graph.x_ticks_major = 2
         self.graph.y_ticks_minor = 1
         self.graph.y_ticks_major = 1
         self.graph.x_grid_label = True
@@ -153,6 +153,12 @@ class LIS3DHTabbedPanelItem(TabbedPanelItem):
     def fman(self, number):
         return float(Decimal(number).scaleb(-self.fexp(number)).normalize())
 
+    ##
+    #   @brief          Get bounds and ticks to autoscale plots.
+    #
+    #   @param[in]      minval: minimum value of the plot.
+    #   @param[in]      maxval: maximum value of the plot.
+    #   @param[in]      nticks: desired number of ticks
     def get_bounds_and_ticks(self, minval, maxval, nticks):
         # amplitude of data
         amp = maxval - minval
@@ -180,21 +186,32 @@ class LIS3DHTabbedPanelItem(TabbedPanelItem):
             goodmax = tick * (maxval // tick)
         return goodmin, goodmax, tick, suggested_minor_tick
 
+    ##
+    #   @brief          Callback called when \ref plot_settings widget is displayed.
+    #
+    #   Binding of several properties across widgets.
     def on_plot_settings(self, instance, value):
-        """
-        @brief Callback called when plot_settings widget is ready.
-
-        Bint several properties together.
-        """
-        self.plot_settings.bind(n_seconds=self.graph.setter('xmin'))
+        #self.plot_settings.bind(n_seconds=self.graph.setter('xmin'))
+        self.plot_settings.bind(n_seconds=self.n_seconds_updated)
         self.plot_settings.bind(ymin=self.graph.setter('ymin'))
         self.plot_settings.bind(ymax=self.graph.setter('ymax'))
         self.plot_settings.bind(autoscale_selected=self.setter('autoscale'))
 
+    ##
+    #   @brief          Number of seconds updated.
+    #
+    #   Update minimum value of the graph and set up x ticks.
+    def n_seconds_updated(self, instance, value):
+        self.graph.xmin = value
+        min_val, max_val, major_ticks, minor_ticks = self.get_bounds_and_ticks(value, 0, 10)
+        self.graph.x_ticks_major = major_ticks
+        self.graph.x_ticks_minor = minor_ticks
+
+    ##
+    #   @brief          Update plot with new packet.
+    #
+    #   @param[in]      packet: new packet received.
     def update_plot(self, packet):
-        """
-        @brief Update plot based on value and refresh rate.
-        """
         self.x_axis_n_points_collected.append(packet.get_x_data())
         self.y_axis_n_points_collected.append(packet.get_y_data())
         self.z_axis_n_points_collected.append(packet.get_z_data())
@@ -216,6 +233,11 @@ class LIS3DHTabbedPanelItem(TabbedPanelItem):
             if (self.autoscale):
                 self.autoscale_plots()
 
+    ##
+    #   @brief          Update plots based on new sample rate value.
+    #
+    #   If a new sample rate is set, plots must be updated to reflect the
+    #   new value of samples per second.
     def update_sample_rate(self, samples_per_second):
         self.sample_rate = samples_per_second
         # Compute number of points to show
@@ -235,8 +257,8 @@ class LIS3DHTabbedPanelItem(TabbedPanelItem):
         self.y_plot.points = zip(self.x_points, self.y_axis_points)
         self.z_plot.points = zip(self.x_points, self.z_axis_points)
 
-        if (samples_per_second > 15):
-            self.n_points_per_update = 10
+        if (samples_per_second > 60):
+            self.n_points_per_update = 5
         else:
             self.n_points_per_update = 1
 

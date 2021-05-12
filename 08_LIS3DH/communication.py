@@ -1,8 +1,7 @@
-"""@package communication
-Documentation for this module.
- 
-More details.
-"""
+##
+# @package communication
+
+from datetime import datetime
 from kivy.event import EventDispatcher
 from kivy.properties import NumericProperty, StringProperty  # pylint: disable=no-name-in-module
 import serial
@@ -10,8 +9,6 @@ import serial.tools.list_ports as list_ports
 import struct
 import threading
 import time
-
-from datetime import datetime
 
 ##
 #   @brief          Data packet header.
@@ -23,9 +20,6 @@ DATA_PACKET_HEADER = 0xA0
 #
 DATA_PACKET_TAIL = 0xC0
 
-##############################
-#         COMMANDS           #
-##############################
 ##
 #   @brief          Command to start connection with board.
 #
@@ -100,12 +94,12 @@ class KivySerial(EventDispatcher, metaclass=Singleton):
     #
     connected = NumericProperty(0)
 
-    """
-    @brief Message to be shown.
-
-    This is a string that is shown on the GUI for messages
-    related to the serial communication.
-    """
+    ##
+    #   @brief          Debug message string.
+    #
+    #   This is a debug message string that can be bound to other
+    #   widgets properties/functions to show debug messages from this
+    #   module.
     message_string = StringProperty('')
 
     ##
@@ -146,15 +140,14 @@ class KivySerial(EventDispatcher, metaclass=Singleton):
         if (callback not in self.callbacks):
             self.callbacks.append(callback)
 
+    ##
+    #   @brief          Automatic serial port discovery.
+    #   
+    #   This function scans all the available COM ports to
+    #   check if one of them is the proper one. It does it
+    #   by sending a \ref CONNECTION_CMD and checking that
+    #   the expected string is received.
     def find_port(self):
-        """
-        @brief Automatic port discovery.
-
-        This function scans all the available COM ports
-        to check if one of them is correct one. It does it
-        by sending a #CONNECTION_CMD and checking if three
-        $$$ are found in the response.
-        """
         port_found = False
         time.sleep(2)
         while (not port_found):
@@ -190,7 +183,7 @@ class KivySerial(EventDispatcher, metaclass=Singleton):
                 received_string = ''
                 while (port.in_waiting > 0):
                     received_string += port.read().decode('utf-8', errors='replace')
-                if ('$$$' in received_string):
+                if ('$$$' in received_string and 'LIS' in received_string):
                     self.message_string = 'Device found on port: {}'.format(
                         port_name)
                     self.connected = CONNECTION_STATE_FOUND
@@ -203,10 +196,11 @@ class KivySerial(EventDispatcher, metaclass=Singleton):
             return False
         return False
 
+    ##
+    #   @brief          Connect to the serial port that was found.
+    #
+    #   @return         0 if connection was successful, -1 otherwise
     def connect(self):
-        """
-        @brief Connect to the port.
-        """
         try:
             self.port = serial.Serial(
                 port=self.port_name, baudrate=self.baudrate, timeout=self.timeout)
@@ -220,18 +214,14 @@ class KivySerial(EventDispatcher, metaclass=Singleton):
             return 0
         return -1
 
-    def on_connected(self, instance, value):
-        """
-        @brief Callback for change in connected property.
-        """
-        if (value == 0):
-            self.is_streaming = False
-            self.message_string = 'Device disconnected'
-
+    ##
+    #   @brief          Start streaming data from the device.
+    #
+    #   This function sends the proper command to start data 
+    #   streaming, and initiates a thread to collec data
+    #   received from the serial port.
+    #
     def start_streaming(self):
-        """
-        @brief Start streaming data from serial port.
-        """
         if (self.connected == CONNECTION_STATE_CONNECTED):
             if (not (self.is_streaming)):
                 self.message_string = 'Starting data streaming'
@@ -246,10 +236,13 @@ class KivySerial(EventDispatcher, metaclass=Singleton):
         else:
             self.message_string = 'Device is not connected.'
 
+    ##
+    #   @brief          Target function for thread collecting data.
+    #
+    #   This function receives packets from the serial port and
+    #   streams them to all the callbacks that were added. It also
+    #   updates the computed sample rate.
     def collect_data(self):
-        """
-        @brief Collect data from serial port while streaming is active.
-        """
         while(self.is_streaming):
             packet = self.read_serial_binary()
             if (packet):
@@ -257,6 +250,9 @@ class KivySerial(EventDispatcher, metaclass=Singleton):
                     callback(packet)
                 self.update_sample_rate()
 
+    ##
+    #   @brief          Compute new sample rate value upon reception of a packet.
+    #
     def update_sample_rate(self):
         if (self.samples_counter == 0):
             self.initial_time = datetime.now()
@@ -386,18 +382,31 @@ class KivySerial(EventDispatcher, metaclass=Singleton):
         else:
             return False
 
-
+##
+#   @brief          Class holding a packet of accelerometer data.
 class LIS3DHDataPacket():
+
+    ##
+    #   @brief          Initialization function.
+    #   @param[in]      x_data: x axis acceleration
+    #   @param[in]      y_data: y axis acceleration
+    #   @param[in]      z_data: z axis acceleration
     def __init__(self, x_data, y_data, z_data):
         self.x_data = x_data
         self.y_data = y_data
         self.z_data = z_data
 
+    ##
+    #   @brief          Get x axis acceleration.
     def get_x_data(self):
         return self.x_data
 
+    ##
+    #   @brief          Get y axis acceleration.
     def get_y_data(self):
         return self.y_data
 
+    ##
+    #   @brief          Get z axis acceleration.
     def get_z_data(self):
         return self.z_data

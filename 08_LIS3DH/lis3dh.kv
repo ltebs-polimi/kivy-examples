@@ -41,6 +41,8 @@
             id: _toolbar
             size_hint: 0.2, 1.0
             disabled: True
+            bottom_widget: _bottom_bar
+            on_message_string: self.bottom_widget.update_text
         GraphTabs:
             id: _graph
     BottomBar:
