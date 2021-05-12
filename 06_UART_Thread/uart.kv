@@ -1,0 +1,37 @@
+#:kivy 1.11
+
+<Container>:
+    orientation: 'vertical'
+    padding: 5
+    spacing: 5
+    com_ports_spinner: _com_ports_spinner
+    connection_button: _connection_button
+    debug_label: _debug_label
+    BoxLayout:
+        orientation: 'horizontal'
+        size_hint_y: 0.2
+        spacing: 5
+        Label:
+            text: 'Select COM Port'
+            size_hint_x: 0.2
+        Spinner:
+            id: _com_ports_spinner
+            size_hint_x: 0.6
+        Button:
+            id: _connection_button
+            size_hint_x: 0.2
+            text: 'Connect'
+            on_press: root.button_pressed_callback()
+    GridLayout:
+        cols: 2
+        size_hint_y: 0.2
+        Button:
+            text: 'Button 1'
+        Button:
+            text: 'Button 2'
+    Widget:
+        # Fill remaining space
+    Label:
+        id: _debug_label
+        size_hint_y: 0.2
+        text: 'UART Threaded Example'
